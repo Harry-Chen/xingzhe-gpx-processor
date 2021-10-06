@@ -1,4 +1,4 @@
-# Xinghe GPX Processor 行者轨迹处理工具
+# Xingzhe GPX Processor 行者轨迹处理工具
 
 [Xingzhe](https://imxingzhe.com) sells cheap GPS bike meters with sensor support including cadence, heart rate and power. But the GPX files exported from its website does not contain any sensor metrics.
 
