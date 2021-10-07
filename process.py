@@ -49,6 +49,7 @@ def process(gpx_f, json_f):
                             inserted_count += 1
 
                     # try to insert attributes from JSON data
+                    try_add_attribute('speed')
                     try_add_attribute('cadence')
                     try_add_attribute('heartrate')
                     try_add_attribute('power')
