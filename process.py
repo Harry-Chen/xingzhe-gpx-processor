@@ -9,9 +9,12 @@ from lxml import etree
 
 def process(gpx_f, json_f):
 
+    print(f'Merging data from {json_f} into {gpx_f}...')
+
     # index data by time
     json_data = {}
     for p in json.load(open(json_f, 'r'))["points"]:
+        # Xingzhe uses strange timestamp (neither local nor UTC) in GPX file
         t = datetime.fromtimestamp(p['time'] // 1000 + 8 * 3600).astimezone(timezone.utc)
         json_data[t] = p
     print(f'Loaded {len(json_data)} points from JSON')
@@ -21,26 +24,42 @@ def process(gpx_f, json_f):
     gpx_raw = gpx_raw.replace('www.topografix.com/GPX/1/0', 'www.topografix.com/GPX/1/1')
     gpx_raw = gpx_raw.replace('version="1.0"', 'version="1.1"')
 
-    # for each point in GPX
     match_count = 0
+    inserted_count = 0
     gpx = gpxpy.parse(gpx_raw)
+    
+    # process each point in GPX
     for track in gpx.tracks:
         for seg in track.segments:
             for p in seg.points:
                 if p.time in json_data:
                     match_count += 1
                     d = json_data[p.time]
+
+                    # helper function
                     def try_add_attribute(name: str):
+                        nonlocal inserted_count
                         if name in d and d[name] != 0.0:
+                            # check all extensions, remove existing ones
+                            exts = [e for e in p.extensions if e.tag != name]
                             e = etree.Element(name)
                             e.text = str(d[name])
-                            p.extensions.append(e)
+                            exts.append(e)
+                            p.extensions = exts
+                            inserted_count += 1
+
+                    # try to insert attributes from JSON data
                     try_add_attribute('cadence')
                     try_add_attribute('heartrate')
                     try_add_attribute('power')
-    
-    # output GPX file
-    print(f'Modifed {len(json_data)} points in GPX')
+ 
+    # check match
+    if match_count == 0:
+        print('No points are matched between GPX and JSON files, please double-check!')
+        exit(1)
+   
+    # output GPX file in version 1.1
+    print(f'Modifed {match_count} points in GPX, inserted {inserted_count} attributes')
     open(gpx_f, 'w').write(gpx.to_xml('1.1'))
 
 
