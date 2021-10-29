@@ -17,6 +17,14 @@ Usage: `./merge.py gpx_file json_file`, where:
 
 This script will overwrite `gpx_file`, make sure you have backups before using.
 
+## `concat.py`
+
+This script can concatenate segments in multiple GPX files into a single GPX file.
+
+Usage: `./concat.py gpx_file_1 ... gpx_file_n gpx_file_out`.
+
+Each input GPX file can only have one track. Metadata from `gpx_file_1` will be used. The concatenated result will be written to `gpx_file_out`.
+
 ## `to_influx.py`
 
 This script can upload tracks in GPX files to InfluxDB. Then you can visualize it with Grafana and [TrackMap Plugin](https://grafana.com/grafana/plugins/pr0ps-trackmap-panel/).
