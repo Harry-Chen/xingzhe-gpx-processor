@@ -46,7 +46,12 @@ if __name__ == '__main__':
                     'elevation': p.elevation,
                 }
                 for e in p.extensions:
-                    fields[e.tag] = float(e.text)
+                    if 'TrackPointExtension' in e.tag:
+                        for child in e:
+                            _, _, tag = child.tag.rpartition('}')
+                            fields[tag] = float(child.text)
+                    else:
+                        fields[e.tag] = float(e.text)
                 points.append({
                     'measurement': 'gpx',
                     'fields': fields,
